@@ -26,7 +26,9 @@ class Test
     private $test;
     private $description;
     private $befores = [];
+    private $afters = [];
     private $level;
+    private $filter;
 
     /**
      * Constructor
@@ -36,6 +38,7 @@ class Test
     public function __construct(int $level = 0)
     {
         $this->level = $level;
+        $this->filter = getenv("TOAST_FILTER");
     }
 
     /**
@@ -76,7 +79,11 @@ class Test
     public function run(&$passed, &$failed, array &$messages)
     {
         if ($this->test->getDocComment()) {
-            $this->out("<darkBlue>".cleanDocComment($this->test)."\n");
+            $description = cleanDocComment($this->test);
+            if ($this->filter && !preg_match("@{$this->filter}@i", $description)) {
+                return;
+            }
+            $this->out("<darkBlue>$description\n");
         }
         $expected = [
             'result' => null,
@@ -142,6 +149,11 @@ class Test
                     $this->out("  <darkRed>[!] $err\n");
                 }
             }
+            if ($this->afters) {
+                foreach ($this->afters as $step) {
+                    call_user_func($step);
+                }
+            }
         }
         $this->out("\n");
     }
@@ -154,6 +166,16 @@ class Test
     public function beforeEach(callable $fn)
     {
         $this->befores[] = $fn;
+    }
+
+    /**
+     * Add an `afterEach` function for all tests in this group.
+     *
+     * @param callable $fn Any callable.
+     */
+    public function afterEach(callable $fn)
+    {
+        $this->afters[] = $fn;
     }
 
     /**

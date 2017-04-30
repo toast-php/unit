@@ -25,6 +25,11 @@ Optionally the config can also contain a `"bootstrap"` key with an array of
 files to include prior to running. These can contain your project's setup (e.g.
 dependency injection logic).
 
+Turn on assertions and configure them to throw `AssertionError` on failure.
+See [this section in the
+manual](http://php.net/manual/en/function.assert.php); both values should be
+set to `1`.
+
 ## Usage
 ```sh
 $ vendor/bin/toast

@@ -1,0 +1,139 @@
+#!/usr/bin/env php
+<?php
+
+namespace Toast\Runner;
+
+use Toast\Cache;
+use Ansi;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
+use ReflectionFunction;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionParameter;
+use ReflectionException;
+use Closure;
+use zpt\anno\Annotations;
+use Monomelodies\Kingconf;
+use Exception;
+use ErrorException;
+
+const TOAST_VERSION = '1.0.0';
+
+$start = microtime(true);
+
+if (!ini_get('date.timezone')) {
+    ini_set('date.timezone', 'UTC');
+}
+
+error_reporting(E_ALL);
+set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext) {
+    if ($errno == E_USER_DEPRECATED) {
+        return;
+    }
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
+require __DIR__.'/../src/helpers.php';
+
+$file = getcwd().'/vendor/autoload.php';
+if (!file_exists($file)) {
+    fwrite(STDERR, <<<EOT
+\033[1;31mError: \033[0mYou need to set up the project dependencies using the following commands:
+
+\033[1;33mwget http://getcomposer.org/composer.phar
+php composer.phar install\033[0m
+
+EOT
+    );
+    die(1);
+}
+
+$autoloader = require $file;
+unset($file);
+
+// Indicates we're running as Toast, hence environment should deal with tests
+// and associated fixtures instead of a "normal" database.
+putenv("TOAST=1");
+
+// A pseudo-random client id for this run of tests. Used mainly to associate a
+// cache pool with a single client in a cross-script manner (e.g. when running
+// acceptance tests). It's also passed as the default session id to the Browser
+// headless client (you can override it if your application uses specific checks
+// on session id validity).
+$client = substr(md5(microtime(true)), 0, 6);
+putenv("TOAST_CLIENT=$client");
+
+out("\n<magenta>Toast ".TOAST_VERSION." by Marijn Ophorst\n\n");
+
+$config = 'Toast.json';
+$verbose = false;
+foreach ($argv as $i => $arg) {
+    if (!$i) {
+        continue; // ignore self
+    }
+    if ($arg == '-v') {
+        $verbose = true;
+    } elseif (preg_match('@--filter=(.*)@', $arg, $filter)) {
+        $filter = $filter[1];
+    } else {
+        $config = $arg;
+    }
+}
+define('Toast\Runner\VERBOSE', $verbose);
+try {
+    $config = (object)(array)(new Kingconf\Config($config));
+} catch (Kingconf\Exception $e) {
+    out("<red>Error: <reset> Config file $config not found or invalid.\n", STDERR);
+    die(1);
+}
+if (isset($config->bootstrap)) {
+    $bootstrap = is_array($config->bootstrap) ? $config->bootstrap : [$config->bootstrap];
+    out("<gray>Bootstrapping...\n");
+    foreach ($bootstrap as $file) {
+        require $file;
+    }
+}
+
+$passed = 0;
+$failed = 0;
+$messages = [];
+$filesystemHelper = new FileSystem;
+foreach ($filesystemHelper->findTests($config->tests) as $file) {
+    $test = new Test;
+    if ($test->loadFromFile($file)) {
+        $test->run($passed, $failed, $messages);
+    }
+}
+
+out("\n");
+
+if ($passed) {
+    out(sprintf(
+        "<green>%d test%s passed.\n",
+        $passed,
+        $passed == 1 ? '' : 's'
+    ));
+}
+if ($failed) {
+    out(sprintf(
+        "<red>%d test%s failed!\n",
+        $failed,
+        $failed == 1 ? '' : 's'
+    ), STDERR);
+    foreach ($messages as $msg) {
+        out("$msg\n");
+    }
+}
+
+try {
+    @unlink(sys_get_temp_dir().'/'.getenv("TOAST_CLIENT").'.cache');
+} catch (ErrorException $e) {
+}
+out("\n");
+out(sprintf(
+    "\n<magenta>Took %0.2f seconds, memory usage %4.2fMb.\n\n",
+    microtime(true) - $start,
+    memory_get_peak_usage(true) / 1048576
+));
+exit($failed);
+

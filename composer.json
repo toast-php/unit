@@ -1,5 +1,5 @@
 {
-    "name": "toast/runner",
+    "name": "toast-php/runner",
     "description": "Toast test runner",
     "type": "library",
     "license": "MIT",

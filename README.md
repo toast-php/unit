@@ -14,7 +14,7 @@ excruciatingly slow (looking at you, PHPUnit).
 
 ## Installation
 ```sh
-$ composer require --dev toast/runner
+$ composer require --dev toast-php/runner
 ```
 
 Create a `Toast.json` config file in the root of your project. It should contain

@@ -114,13 +114,13 @@ to you.
 Similarly, if you need to teardown there is an `afterEach` method that works the
 same way.
 
-    Cap'n obvious here, but both `beforeEach` as well as `afterEach` will only
-    apply to tests getting `yield`ed _after_ the respective calls. This is
-    because PHP halts execution internally inside a generator. For complex tests
-    it _might_ make sense to add before/after callables mid-group, but usually
-    you should just place them at the beginning. If you find yourself needing to
-    add them mid-group, it's usually a sign you should break up your test group
-    into smaller units.
+> Cap'n obvious here, but both `beforeEach` as well as `afterEach` will only
+> apply to tests getting `yield`ed _after_ the respective calls. This is
+> because PHP halts execution internally inside a generator. For complex tests
+> it _might_ make sense to add before/after callables mid-group, but usually
+> you should just place them at the beginning. If you find yourself needing to
+> add them mid-group, it's usually a sign you should break up your test group
+> into smaller units.
 
 ## Testing other things than simple assertions
 Toast assumes a succesfull test is a passed assertion. But what it you need to

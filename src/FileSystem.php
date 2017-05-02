@@ -1,6 +1,6 @@
 <?php
 
-namespace Toast\Runner;
+namespace Toast\Unit;
 
 use stdClass;
 use RecursiveIteratorIterator;

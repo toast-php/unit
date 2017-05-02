@@ -1,4 +1,4 @@
-# Toast\Runner
+# Toast\Unit
 Toast is a super-simple testing framework for PHP, inspired by Javascript
 testing frameworks like Karma, Jasmine etc.
 
@@ -14,7 +14,7 @@ excruciatingly slow (looking at you, PHPUnit).
 
 ## Installation
 ```sh
-$ composer require --dev toast-php/runner
+$ composer require --dev toast-php/unit
 ```
 
 Create a `Toast.json` config file in the root of your project. It should contain
@@ -80,7 +80,7 @@ Nesting can go as deep as makes sense for your project.
 
 ## Setup
 The test callables actually get called with a single argument: the instance of
-`Toast\Runner\Test` being used. This object has a `beforeEach` method accepting
+`Toast\Unit\Test` being used. This object has a `beforeEach` method accepting
 a callable to be called before each test _in that group_ (tests in a nested
 group do not inherit them). Multiple calls to `beforeEach` can be made.
 

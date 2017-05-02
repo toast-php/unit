@@ -18,7 +18,7 @@ use Monomelodies\Kingconf;
 use Exception;
 use ErrorException;
 
-const TOAST_VERSION = '1.0.2';
+const TOAST_VERSION = '1.1.0';
 
 $start = microtime(true);
 

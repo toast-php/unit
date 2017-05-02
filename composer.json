@@ -1,5 +1,5 @@
 {
-    "name": "toast-php/unit",
+    "name": "toast/unit",
     "description": "Super-simple unit testing for PHP7",
     "type": "library",
     "license": "MIT",

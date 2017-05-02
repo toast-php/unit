@@ -1,6 +1,6 @@
 <?php
 
-namespace Toast\Runner;
+namespace Toast\Unit;
 
 use Ansi;
 use Reflector;

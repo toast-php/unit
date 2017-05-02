@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-namespace Toast\Runner;
+namespace Toast\Unit;
 
 use Toast\Cache;
 use Ansi;
@@ -79,7 +79,7 @@ foreach ($argv as $i => $arg) {
         $config = $arg;
     }
 }
-define('Toast\Runner\VERBOSE', $verbose);
+define('Toast\Unit\VERBOSE', $verbose);
 try {
     $config = (object)(array)(new Kingconf\Config($config));
 } catch (Kingconf\Exception $e) {

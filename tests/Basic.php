@@ -1,11 +1,6 @@
 <?php
 
-namespace Toast\Tests;
-
 use Toast\Demo;
-use stdClass;
-use ReflectionFunction;
-use Generator;
 
 /**
  * Basic test running

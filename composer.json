@@ -19,12 +19,11 @@
     ],
     "autoload": {
         "psr-4": {
-            "Toast\\Runner\\": "src"
+            "Toast\\Unit\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Toast\\Tests\\": "tests",
             "Toast\\Demo\\": "demo"
         }
     }

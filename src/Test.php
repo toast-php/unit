@@ -80,10 +80,8 @@ class Test
     {
         if ($this->test->getDocComment()) {
             $description = cleanDocComment($this->test);
-            if ($this->filter && !preg_match("@{$this->filter}@i", $description)) {
-                return;
-            }
-            $this->out("<darkBlue>$description\n");
+        } else {
+            $description = null;
         }
         $expected = [
             'result' => null,
@@ -91,22 +89,51 @@ class Test
             'out' => '',
         ];
         $result = $this->test->invoke($this);
+        $this->matchesFilter = [$description];
         foreach ($result as $test) {
+            $test = new ReflectionFunction($test);
+            if (!($test->hasReturnType()
+                and $returnType = $test->getReturnType()->__toString()
+                and $returnType == 'Generator'
+            )) {
+                $this->matchesFilter[] = cleanDocComment($test);
+            }
+        }
+        if ($this->filter) {
+            $match = false;
+            foreach ($this->matchesFilter as $filter) {
+                if (preg_match("@{$this->filter}@i", $filter)) {
+                    $match = true;
+                }
+            }
+        } else {
+            $match = true;
+        }
+        if ($match) {
+            $this->out("<darkBlue>$description\n");
+        } else {
+            return;
+        }
+        $result = $this->test->invoke($this);
+        foreach ($result as $test) {
+            $test = new ReflectionFunction($test);
             if ($this->befores) {
                 foreach ($this->befores as $step) {
                     call_user_func($step);
                 }
             }
-            $reflected = new ReflectionFunction($test);
-            if ($reflected->hasReturnType()
-                and $returnType = $reflected->getReturnType()->__toString()
+            if ($test->hasReturnType()
+                and $returnType = $test->getReturnType()->__toString()
                 and $returnType == 'Generator'
             ) {
                 $spawn = new Test($this->level + 1);
-                $spawn->setTestFunction($reflected);
+                $spawn->setTestFunction($test);
                 $spawn->run($passed, $failed, $messages);
             } else {
-                $comment = '  '.cleanDocComment($reflected);
+                $comment = '  '.cleanDocComment($test);
+                if ($this->filter && !preg_match("@{$this->filter}@i", $comment)) {
+                    continue;
+                }
                 $this->out($comment);
                 $e = null;
                 $err = null;

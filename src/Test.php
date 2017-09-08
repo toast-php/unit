@@ -29,16 +29,18 @@ class Test
     private $afters = [];
     private $level;
     private $filter;
+    public $matchesFilter = [];
+    public $subMatchesFilter = [];
 
     /**
      * Constructor
      *
      * @param int $level The nesting level, for indenting the output.
      */
-    public function __construct(int $level = 0)
+    public function __construct(int $level = 0, string $filter = null)
     {
         $this->level = $level;
-        $this->filter = getenv("TOAST_FILTER");
+        $this->filter = $filter;
     }
 
     /**
@@ -53,6 +55,21 @@ class Test
         $description = cleanDocComment($this->test);
         $description = preg_replace("@\s{1,}@m", ' ', $description);
         $this->description = $description;
+        $result = $this->test->invoke($this);
+        $this->matchesFilter = [$this->description];
+        foreach ($result as $test) {
+            $test = new ReflectionFunction($test);
+            if (!($test->hasReturnType()
+                and $returnType = $test->getReturnType()->__toString()
+                and $returnType == 'Generator'
+            )) {
+                $this->matchesFilter[] = cleanDocComment($test);
+            } else {
+                $spawn = new Test($this->level + 1);
+                $spawn->setTestFunction($test);
+                $this->subMatchesFilter = array_merge($spawn->matchesFilter, $spawn->subMatchesFilter);
+            }
+        }
     }
 
     public function loadFromFile(string $file) : bool
@@ -78,27 +95,11 @@ class Test
      */
     public function run(&$passed, &$failed, array &$messages)
     {
-        if ($this->test->getDocComment()) {
-            $description = cleanDocComment($this->test);
-        } else {
-            $description = null;
-        }
         $expected = [
             'result' => null,
             'thrown' => null,
             'out' => '',
         ];
-        $result = $this->test->invoke($this);
-        $this->matchesFilter = [$description];
-        foreach ($result as $test) {
-            $test = new ReflectionFunction($test);
-            if (!($test->hasReturnType()
-                and $returnType = $test->getReturnType()->__toString()
-                and $returnType == 'Generator'
-            )) {
-                $this->matchesFilter[] = cleanDocComment($test);
-            }
-        }
         if ($this->filter) {
             $match = false;
             foreach ($this->matchesFilter as $filter) {
@@ -106,11 +107,16 @@ class Test
                     $match = true;
                 }
             }
+            foreach ($this->subMatchesFilter as $filter) {
+                if (preg_match("@{$this->filter}@i", $filter)) {
+                    $match = $filter;
+                }
+            }
         } else {
             $match = true;
         }
         if ($match) {
-            $this->out("<darkBlue>$description\n");
+            $this->out("<darkBlue>{$this->description}\n");
         } else {
             return;
         }
@@ -126,7 +132,8 @@ class Test
                 and $returnType = $test->getReturnType()->__toString()
                 and $returnType == 'Generator'
             ) {
-                $spawn = new Test($this->level + 1);
+                $filter = null;
+                $spawn = new Test($this->level + 1, in_array($match, $this->subMatchesFilter, true) ? $this->filter : null);
                 $spawn->setTestFunction($test);
                 $spawn->run($passed, $failed, $messages);
             } else {
@@ -139,7 +146,7 @@ class Test
                 $err = null;
                 try {
                     ob_start();
-                    $reflected->invoke($this);
+                    $test->invoke($this);
                     $passed++;
                 } catch (AssertionError $e) {
                     $err = sprintf(

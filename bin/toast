@@ -75,7 +75,7 @@ foreach ($argv as $i => $arg) {
         $verbose = true;
     } elseif (preg_match('@--filter=(.*)@', $arg, $filter)) {
         $filter[1] = preg_replace('@^[\'"](.*?)[\'"]$@', '\\1', $filter[1]);
-        putenv("TOAST_FILTER={$filter[1]}");
+        $toastFilter = $filter[1];
     } else {
         $config = $arg;
     }
@@ -100,7 +100,7 @@ $failed = 0;
 $messages = [];
 $filesystemHelper = new FileSystem;
 foreach ($filesystemHelper->findTests($config->tests) as $file) {
-    $test = new Test(0, getenv("TOAST_FILTER"));
+    $test = new Test(0, $toastFilter ?? null);
     if ($test->loadFromFile($file)) {
         $test->run($passed, $failed, $messages);
     }

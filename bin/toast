@@ -100,7 +100,7 @@ $failed = 0;
 $messages = [];
 $filesystemHelper = new FileSystem;
 foreach ($filesystemHelper->findTests($config->tests) as $file) {
-    $test = new Test;
+    $test = new Test(0, getenv("TOAST_FILTER"));
     if ($test->loadFromFile($file)) {
         $test->run($passed, $failed, $messages);
     }

@@ -29,6 +29,7 @@ class Test
     private $afters = [];
     private $level;
     private $filter;
+    private $file;
     public $matchesFilter = [];
     public $subMatchesFilter = [];
 
@@ -52,6 +53,7 @@ class Test
     public function setTestFunction(ReflectionFunctionAbstract $function)
     {
         $this->test = $function;
+        $this->file = $function->getFileName();
         $description = cleanDocComment($this->test);
         $description = preg_replace("@\s{1,}@m", ' ', $description);
         $this->description = $description;
@@ -167,11 +169,12 @@ class Test
                     $failed++;
                 } catch (Throwable $e) {
                     $err = sprintf(
-                        '<gray>Caught exception <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s',
+                        '<gray>Caught exception <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray>in test <darkGray>%s',
                         get_class($e),
                         $e->getMessage(),
                         basename($e->getFile()),
-                        $e->getLine()
+                        $e->getLine(),
+                        $this->file
                     );
                     $failed++;
                 }
@@ -181,6 +184,7 @@ class Test
                 } else {
                     $this->isError($comment);
                     $this->out("  <darkRed>[!] $err\n");
+                    Log::log($err);
                 }
             }
             if ($this->afters) {

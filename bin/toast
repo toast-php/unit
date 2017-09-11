@@ -108,6 +108,11 @@ foreach ($filesystemHelper->findTests($config->tests) as $file) {
 
 out("\n");
 
+if ($failed) {
+    foreach (Log::get() as $msg) {
+        out("$msg\n\n");
+    }
+}
 if ($passed) {
     out(sprintf(
         "<green>%d test%s passed.\n",
@@ -121,9 +126,6 @@ if ($failed) {
         $failed,
         $failed == 1 ? '' : 's'
     ), STDERR);
-    foreach (Log::get() as $msg) {
-        out("$msg\n\n");
-    }
 }
 
 try {

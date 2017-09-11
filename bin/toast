@@ -117,12 +117,12 @@ if ($passed) {
 }
 if ($failed) {
     out(sprintf(
-        "<red>%d test%s failed!\n",
+        "<red>%d test%s failed!\n\n",
         $failed,
         $failed == 1 ? '' : 's'
     ), STDERR);
-    foreach ($messages as $msg) {
-        out("$msg\n");
+    foreach (Log::get() as $msg) {
+        out("$msg\n\n");
     }
 }
 

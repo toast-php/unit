@@ -60,6 +60,11 @@ class Test
         $result = $this->test->invoke($this);
         $this->matchesFilter = [$this->description];
         foreach ($result as $test) {
+            if ($this->befores) {
+                foreach ($this->befores as $step) {
+                    call_user_func($step);
+                }
+            }
             $test = new ReflectionFunction($test);
             if (!($test->hasReturnType()
                 and $returnType = $test->getReturnType()->__toString()
@@ -70,6 +75,11 @@ class Test
                 $spawn = new Test($this->level + 1);
                 $spawn->setTestFunction($test);
                 $this->subMatchesFilter = array_merge($spawn->matchesFilter, $spawn->subMatchesFilter);
+            }
+            if ($this->afters) {
+                foreach ($this->afters as $step) {
+                    call_user_func($step);
+                }
             }
         }
     }
@@ -152,19 +162,21 @@ class Test
                     $passed++;
                 } catch (AssertionError $e) {
                     $err = sprintf(
-                        '<darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s',
+                        '<gray>Assertion failed: <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray> in test <darkGray>%s',
                         substr($e->getMessage(), 7, -1),
                         basename($e->getFile()),
-                        $e->getLine()
+                        $e->getLine(),
+                        $this->file
                     );
                     $failed++;
                 } catch (Error $e) {
                     $err = sprintf(
-                        '<gray>Error <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s',
+                        '<gray>Error <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray> in test <darkGray>%s',
                         get_class($e),
                         $e->getMessage(),
                         basename($e->getFile()),
-                        $e->getLine()
+                        $e->getLine(),
+                        $this->file
                     );
                     $failed++;
                 } catch (Throwable $e) {

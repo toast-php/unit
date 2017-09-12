@@ -36,7 +36,7 @@ $ vendor/bin/toast
 ```
 
 That's it :) You may optionally speficy a `--filter=` parameter containing a
-regular expression. In that case only tests with matching descriptions will be
+regular expression. In that case only tests with matching file names will be
 run. Filters are case-insensitive and `"@"` is used as a delimiter.
 
 ## Writing tests

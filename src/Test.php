@@ -23,7 +23,7 @@ use AssertionError;
  */
 class Test
 {
-    private $test;
+    private $test = false;
     private $description;
     private $befores = [];
     private $afters = [];
@@ -52,36 +52,14 @@ class Test
      */
     public function setTestFunction(ReflectionFunctionAbstract $function)
     {
-        $this->test = $function;
         $this->file = $function->getFileName();
+        if (isset($this->filter) && !preg_match("@{$this->filter}@i", $this->file)) {
+            return;
+        }
+        $this->test = $function;
         $description = cleanDocComment($this->test);
         $description = preg_replace("@\s{1,}@m", ' ', $description);
         $this->description = $description;
-        $result = $this->test->invoke($this);
-        $this->matchesFilter = [$this->description];
-        foreach ($result as $test) {
-            if ($this->befores) {
-                foreach ($this->befores as $step) {
-                    call_user_func($step);
-                }
-            }
-            $test = new ReflectionFunction($test);
-            if (!($test->hasReturnType()
-                and $returnType = $test->getReturnType()->__toString()
-                and $returnType == 'Generator'
-            )) {
-                $this->matchesFilter[] = cleanDocComment($test);
-            } else {
-                $spawn = new Test($this->level + 1);
-                $spawn->setTestFunction($test);
-                $this->subMatchesFilter = array_merge($spawn->matchesFilter, $spawn->subMatchesFilter);
-            }
-            if ($this->afters) {
-                foreach ($this->afters as $step) {
-                    call_user_func($step);
-                }
-            }
-        }
     }
 
     public function loadFromFile(string $file) : bool
@@ -103,35 +81,19 @@ class Test
      * @param int &$passed Global number of tests passed so far.
      * @param int &$failed Global number of tests failed so far.
      * @param array &$messages Array of messages so far (for verbose mode).
-     * @return array An array of the arguments used when testing.
+     * @return void
      */
     public function run(&$passed, &$failed, array &$messages)
     {
+        if (!$this->test) {
+            return;
+        }
         $expected = [
             'result' => null,
             'thrown' => null,
             'out' => '',
         ];
-        if ($this->filter) {
-            $match = false;
-            foreach ($this->matchesFilter as $filter) {
-                if (preg_match("@{$this->filter}@i", $filter)) {
-                    $match = true;
-                }
-            }
-            foreach ($this->subMatchesFilter as $filter) {
-                if (preg_match("@{$this->filter}@i", $filter)) {
-                    $match = $filter;
-                }
-            }
-        } else {
-            $match = true;
-        }
-        if ($match) {
-            $this->out("<darkBlue>{$this->description}\n");
-        } else {
-            return;
-        }
+        $this->out("<darkBlue>{$this->description}\n");
         $result = $this->test->invoke($this);
         foreach ($result as $test) {
             $test = new ReflectionFunction($test);
@@ -145,14 +107,11 @@ class Test
                 and $returnType == 'Generator'
             ) {
                 $filter = null;
-                $spawn = new Test($this->level + 1, in_array($match, $this->subMatchesFilter, true) ? $this->filter : null);
+                $spawn = new Test($this->level + 1);
                 $spawn->setTestFunction($test);
                 $spawn->run($passed, $failed, $messages);
             } else {
                 $comment = '  '.cleanDocComment($test);
-                if ($this->filter && !preg_match("@{$this->filter}@i", $comment)) {
-                    continue;
-                }
                 $this->out($comment);
                 $e = null;
                 $err = null;

@@ -67,6 +67,7 @@ out("\n<magenta>Toast ".TOAST_VERSION." by Marijn Ophorst\n\n");
 
 $config = 'Toast.json';
 $verbose = false;
+$output = false;
 foreach ($argv as $i => $arg) {
     if (!$i) {
         continue; // ignore self
@@ -76,11 +77,14 @@ foreach ($argv as $i => $arg) {
     } elseif (preg_match('@--filter=(.*)@', $arg, $filter)) {
         $filter[1] = preg_replace('@^[\'"](.*?)[\'"]$@', '\\1', $filter[1]);
         $toastFilter = $filter[1];
+    } elseif ($arg == '-o') {
+        $output = true;
     } else {
         $config = $arg;
     }
 }
 define('Toast\Unit\VERBOSE', $verbose);
+define('Toast\Unit\OUTPUT', $output);
 try {
     $config = (object)(array)(new Kingconf\Config($config));
 } catch (Kingconf\Exception $e) {

@@ -155,6 +155,10 @@ yield function () {
 };
 ```
 
+You can optionally specify the `-o` parameter when invoking Toast to turn this
+feature off. This eases development since you can more easily `var_dump` stuff
+until you get a working test.
+
 ## Detecting a Toast run
 Toast sets an environment variable `TOAST` your code can check for, e.g. to know
 which database you want to use (development or test):

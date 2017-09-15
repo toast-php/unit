@@ -116,7 +116,9 @@ class Test
                 $e = null;
                 $err = null;
                 try {
-                    ob_start();
+                    if (!OUTPUT) {
+                        ob_start();
+                    }
                     $test->invoke($this);
                     $passed++;
                 } catch (AssertionError $e) {
@@ -149,7 +151,11 @@ class Test
                     );
                     $failed++;
                 }
-                $out = cleanOutput(ob_get_clean());
+                if (!OUTPUT) {
+                    $out = cleanOutput(ob_get_clean());
+                } else {
+                    $out = null;
+                }
                 if (!isset($e)) {
                     $this->isOk($comment, strlen($out) ? 'darkGreen' : 'green');
                 } else {

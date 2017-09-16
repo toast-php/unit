@@ -180,6 +180,7 @@ class Test
      */
     public function beforeEach(callable $fn)
     {
+        $fn($this);
         $this->befores[] = $fn;
     }
 

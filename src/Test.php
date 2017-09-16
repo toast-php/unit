@@ -52,7 +52,7 @@ class Test
      */
     public function setTestFunction(ReflectionFunctionAbstract $function)
     {
-        $this->file = $function->getFileName();
+        $this->file = preg_replace('@^'.getcwd().'@', '', $function->getFileName());
         if (isset($this->filter) && !preg_match("@{$this->filter}@i", $this->file)) {
             return;
         }

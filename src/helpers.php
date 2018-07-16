@@ -8,7 +8,7 @@ use Reflector;
 /**
  * Output $text to the specified $out, with added ANSI colours.
  */
-function out($text, $out = STDOUT)
+function out(string $text, $out = STDOUT) : void
 {
     static $indent = '';
     static $output;
@@ -22,12 +22,12 @@ function out($text, $out = STDOUT)
     $output($text);
 }
 
-function cleanOutput($string)
+function cleanOutput(string $string) : string
 {
     return preg_replace('@\\033\[[\d;]*m@m', '', rtrim($string));
 }
 
-function cleanDocComment(Reflector $reflection, $strip_annotations = true)
+function cleanDocComment(Reflector $reflection, bool $strip_annotations = true) : string
 {
     $doccomment = $reflection->getDocComment();
     $doccomment = preg_replace("@^/\*\*@", '', $doccomment);
@@ -41,7 +41,11 @@ function cleanDocComment(Reflector $reflection, $strip_annotations = true)
     return $doccomment;
 }
 
-function getNormalisedType($type)
+/**
+ * @param mixed $type
+ * @return string
+ */
+function getNormalisedType($type) : string
 {
     if (is_object($type)) {
         return get_class($type);

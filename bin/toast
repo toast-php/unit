@@ -27,7 +27,7 @@ if (!ini_get('date.timezone')) {
 }
 
 error_reporting(E_ALL);
-set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext) {
+set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) {
     if ($errno == E_USER_DEPRECATED) {
         return;
     }

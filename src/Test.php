@@ -37,6 +37,7 @@ class Test
      * Constructor
      *
      * @param int $level The nesting level, for indenting the output.
+     * @param string|null $filter
      */
     public function __construct(int $level = 0, string $filter = null)
     {
@@ -141,15 +142,22 @@ class Test
                     );
                     $failed++;
                 } catch (Throwable $e) {
-                    $err = sprintf(
-                        '<gray>Caught exception <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray>in test <darkGray>%s',
-                        get_class($e),
-                        $e->getMessage(),
-                        basename($e->getFile()),
-                        $e->getLine(),
-                        $this->file
-                    );
-                    $failed++;
+                    $trace = $e->getTrace();
+                    foreach ($trace as $step) {
+                        if (!isset($step['file']) || strpos($step['file'], '/vendor/')) {
+                            continue;
+                        }
+                        $err = sprintf(
+                            '<gray>Caught exception <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray>in test <darkGray>%s',
+                            get_class($e),
+                            $e->getMessage(),
+                            $this->getBasename($step['file']),
+                            $step['line'],
+                            $this->file
+                        );
+                        $failed++;
+                        break;
+                    }
                 }
                 if (!OUTPUT) {
                     $out = cleanOutput(ob_get_clean());
@@ -226,6 +234,11 @@ class Test
         $length = strlen(str_repeat('  ', $this->level).$message);
         out("\033[{$length}D\033[0m");
         $this->out("<red>$message\n");
+    }
+
+    private function getBasename(string $file) : string
+    {
+        return preg_replace("@^".getcwd()."/@", '', $file);
     }
 }
 

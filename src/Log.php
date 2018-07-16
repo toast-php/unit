@@ -6,12 +6,23 @@ abstract class Log
 {
     private static $messages = [];
 
-    public static function log($msg)
+    /**
+     * Log a message.
+     *
+     * @param string $msg
+     * @return void
+     */
+    public static function log(string $msg) : void
     {
         self::$messages[] = $msg;
     }
 
-    public static function get()
+    /**
+     * Get all messages so far.
+     *
+     * @return array
+     */
+    public static function get() : array
     {
         return self::$messages;
     }

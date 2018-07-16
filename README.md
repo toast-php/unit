@@ -30,6 +30,22 @@ See [this section in the
 manual](http://php.net/manual/en/function.assert.php); both values should be
 set to `1`.
 
+## Configuration
+Place a configuration file in de root of your project (or optionally specify it
+as a parameter when running Toast). The file supports all formats
+[Kingconf](https://github.com/monomelodies/kingconf) supports; we'll use JSON
+here.
+
+An example config file:
+
+```json
+{
+    "tests": "path/to/my/tests"
+}
+```
+
+Yep, that's it :)
+
 ## Usage
 ```sh
 $ vendor/bin/toast
@@ -38,6 +54,10 @@ $ vendor/bin/toast
 That's it :) You may optionally speficy a `--filter=` parameter containing a
 regular expression. In that case only tests with matching file names will be
 run. Filters are case-insensitive and `"@"` is used as a delimiter.
+
+Other optional flags are:
+- `-v` for verbose mode
+- `-o` for output mode (see below)
 
 ## Writing tests
 This couldn't be simpler! Each test(group) is a _callable_. Toast assumes any

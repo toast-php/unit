@@ -85,7 +85,7 @@ class Test
      * @param array &$messages Array of messages so far (for verbose mode).
      * @return void
      */
-    public function run(&$passed, &$failed, array &$messages) : void
+    public function run(int &$passed, int &$failed, array &$messages) : void
     {
         if (!$this->test) {
             return;

@@ -50,8 +50,9 @@ class Test
      *
      * @param ReflectionFunctionAbstract $function Reflected function
      *  representing this particular scenario.
+     * @return void
      */
-    public function setTestFunction(ReflectionFunctionAbstract $function)
+    public function setTestFunction(ReflectionFunctionAbstract $function) : void
     {
         $this->file = preg_replace('@^'.getcwd().'@', '', $function->getFileName());
         if (isset($this->filter) && !preg_match("@{$this->filter}@i", $this->file)) {
@@ -84,7 +85,7 @@ class Test
      * @param array &$messages Array of messages so far (for verbose mode).
      * @return void
      */
-    public function run(&$passed, &$failed, array &$messages)
+    public function run(&$passed, &$failed, array &$messages) : void
     {
         if (!$this->test) {
             return;
@@ -185,8 +186,9 @@ class Test
      * Add a `beforeEach` function for all tests in this group.
      *
      * @param callable $fn Any callable.
+     * @return void
      */
-    public function beforeEach(callable $fn)
+    public function beforeEach(callable $fn) : void
     {
         $this->befores[] = $fn;
     }
@@ -195,6 +197,7 @@ class Test
      * Add an `afterEach` function for all tests in this group.
      *
      * @param callable $fn Any callable.
+     * @return void
      */
     public function afterEach(callable $fn)
     {
@@ -205,8 +208,9 @@ class Test
      * Simple output helper adding indents.
      *
      * @param string $string
+     * @return void
      */
-    private function out(string $string)
+    private function out(string $string) : void
     {
         out(str_repeat('  ', $this->level).$string);
     }
@@ -216,8 +220,9 @@ class Test
      *
      * @param string $message
      * @param string $color Colour (defaults to green)
+     * @return void
      */
-    private function isOk(string $message, string $color = 'green')
+    private function isOk(string $message, string $color = 'green') : void
     {
         $length = strlen(str_repeat('  ', $this->level).$message);
         out("\033[{$length}D\033[0m");
@@ -228,14 +233,21 @@ class Test
      * Simple output helper for errors.
      *
      * @param string $message
+     * @return void
      */
-    private function isError(string $message)
+    private function isError(string $message) : void
     {
         $length = strlen(str_repeat('  ', $this->level).$message);
         out("\033[{$length}D\033[0m");
         $this->out("<red>$message\n");
     }
 
+    /**
+     * Get the relevant part of the filename.
+     *
+     * @param string $file Full path
+     * @return string Shortened path
+     */
     private function getBasename(string $file) : string
     {
         return preg_replace("@^".getcwd()."/@", '', $file);

@@ -143,7 +143,7 @@ class Test
                             get_class($e),
                             $e->getMessage(),
                             $this->getBasename($step['file']),
-                            $e->getLine(),
+                            $step['line'],
                             $this->file
                         );
                         $failed++;

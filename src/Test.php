@@ -127,21 +127,28 @@ class Test
                     $err = sprintf(
                         '<gray>Assertion failed: <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray> in test <darkGray>%s',
                         substr($e->getMessage(), 7, -1),
-                        basename($e->getFile()),
+                        $this->getBasename($e->getFile()),
                         $e->getLine(),
                         $this->file
                     );
                     $failed++;
                 } catch (Error $e) {
-                    $err = sprintf(
-                        '<gray>Error <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray> in test <darkGray>%s',
-                        get_class($e),
-                        $e->getMessage(),
-                        basename($e->getFile()),
-                        $e->getLine(),
-                        $this->file
-                    );
-                    $failed++;
+                    $trace = $e->getTrace();
+                    foreach ($trace as $step) {
+                        if (!isset($step['file']) || strpos($step['file'], '/vendor/')) {
+                            continue;
+                        }
+                        $err = sprintf(
+                            '<gray>Error <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray> in test <darkGray>%s',
+                            get_class($e),
+                            $e->getMessage(),
+                            $this->getBasename($step['file']),
+                            $e->getLine(),
+                            $this->file
+                        );
+                        $failed++;
+                        break;
+                    }
                 } catch (Throwable $e) {
                     $trace = $e->getTrace();
                     foreach ($trace as $step) {

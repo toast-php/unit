@@ -175,6 +175,16 @@ class Test
                 if (!isset($e)) {
                     $this->isOk($comment, strlen($out) ? 'darkGreen' : 'green');
                 } else {
+                    if (!isset($err)) {
+                        $err = sprintf(
+                            '<gray>Caught exception <darkGray>%s <gray> with message <darkGray>%s <gray>in <darkGray>%s <gray>on line <darkGray>%s <gray>in test <darkGray>%s',
+                            get_class($e),
+                            $e->getMessage(),
+                            $this->getBasename($e->getFile()),
+                            $e->getLine(),
+                            $this->file
+                        );
+                    }
                     $this->isError($comment);
                     $this->out("  <darkRed>[!] $err\n");
                     Log::log($err);

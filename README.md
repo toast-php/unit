@@ -99,20 +99,20 @@ return function () : Generator {
 Nesting can go as deep as makes sense for your project.
 
 ## Setup
-The test callables actually get called with a single argument: the instance of
-`Toast\Unit\Test` being used. This object has a `beforeEach` method accepting
+The test callables are invoked with `$this` bound to the actual test instance
+(an instance of `Toast\Unit\Test`). This exposes a `beforeEach` method accepting
 a callable to be called before each test _in that group_ (tests in a nested
 group do not inherit them). Multiple calls to `beforeEach` can be made.
 
 ```php
 <?php
 
-return function ($test) : Generator {
-    $test->beforeEach(function () {
+return function () : Generator {
+    $this->beforeEach(function () {
         echo "1\n";
     });
-    yield function ($test) : Generator {
-        $test->beforeEach(function () {
+    yield function () : Generator {
+        $this->beforeEach(function () {
             echo "2\n";
         });
         yield function () { assert(true); };

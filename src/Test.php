@@ -3,18 +3,12 @@
 namespace Toast\Unit;
 
 use ReflectionClass;
-use ReflectionMethod;
 use ReflectionFunction;
-use ReflectionFunctionAbstract;
-use ReflectionParameter;
-use ReflectionException;
-use zpt\anno\Annotations;
 use Throwable;
 use Error;
 use ErrorException;
 use Closure;
 use Generator;
-use SplFileInfo;
 use AssertionError;
 
 /**
@@ -48,11 +42,11 @@ class Test
     /**
      * Set the function to test.
      *
-     * @param ReflectionFunctionAbstract $function Reflected function
-     *  representing this particular scenario.
+     * @param ReflectionFunction $function Reflected function representing this
+     *  particular scenario.
      * @return void
      */
-    public function setTestFunction(ReflectionFunctionAbstract $function) : void
+    public function setTestFunction(ReflectionFunction $function) : void
     {
         $this->file = preg_replace('@^'.getcwd().'@', '', $function->getFileName());
         if (isset($this->filter) && !preg_match("@{$this->filter}@i", $this->file)) {
@@ -68,8 +62,7 @@ class Test
     {
         $fn = include $file;
         if (is_callable($fn)) {
-            $reflection = new ReflectionFunction($fn);
-            $this->setTestFunction($reflection);
+            $this->setTestFunction(new ReflectionFunction($fn));
             return true;
         } else {
             $this->out("<darkRed>No tests found in $file, skipping...\n");
@@ -96,7 +89,9 @@ class Test
             'out' => '',
         ];
         $this->out("<darkBlue>{$this->description}\n");
-        $result = $this->test->invoke($this);
+        $closure = $this->test->getClosure();
+        $closure->bindTo($this);
+        $result = $closure();
         foreach ($result as $test) {
             $test = new ReflectionFunction($test);
             if ($this->befores) {

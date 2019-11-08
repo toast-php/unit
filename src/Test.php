@@ -32,6 +32,8 @@ class Test
      *
      * @param int $level The nesting level, for indenting the output.
      * @param string|null $filter
+     * @param array $befores Inherited beforeEach statements. Optional.
+     * @param array $afters Inherited afterEach statements. Optional.
      */
     public function __construct(int $level = 0, string $filter = null, array &$befores = [], array &$afters = [])
     {

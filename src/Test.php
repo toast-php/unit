@@ -33,10 +33,12 @@ class Test
      * @param int $level The nesting level, for indenting the output.
      * @param string|null $filter
      */
-    public function __construct(int $level = 0, string $filter = null)
+    public function __construct(int $level = 0, string $filter = null, array &$befores = [], array &$afters = [])
     {
         $this->level = $level;
         $this->filter = $filter;
+        $this->befores =& $befores;
+        $this->afters =& $afters;
     }
 
     /**
@@ -94,20 +96,19 @@ class Test
         $result = $closure();
         foreach ($result as $test) {
             $test = new ReflectionFunction($test);
-            if ($this->befores) {
-                foreach ($this->befores as $step) {
-                    call_user_func($step);
-                }
-            }
             if ($test->hasReturnType()
                 and $returnType = $test->getReturnType()->__toString()
                 and $returnType == 'Generator'
             ) {
-                $filter = null;
-                $spawn = new Test($this->level + 1);
+                $spawn = new Test($this->level + 1, null, $this->befores, $this->afters);
                 $spawn->setTestFunction($test);
                 $spawn->run($passed, $failed, $messages);
             } else {
+                if ($this->befores) {
+                    foreach ($this->befores as $step) {
+                        call_user_func($step);
+                    }
+                }
                 $comment = '  '.cleanDocComment($test);
                 $this->out($comment);
                 $e = null;
@@ -184,10 +185,10 @@ class Test
                     $this->out("  <darkRed>[!] $err\n");
                     Log::log($err);
                 }
-            }
-            if ($this->afters) {
-                foreach ($this->afters as $step) {
-                    call_user_func($step);
+                if ($this->afters) {
+                    foreach ($this->afters as $step) {
+                        call_user_func($step);
+                    }
                 }
             }
         }

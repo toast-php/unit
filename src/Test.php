@@ -11,6 +11,8 @@ use Closure;
 use Generator;
 use AssertionError;
 
+declare(ticks=1);
+
 /**
  * The main test class. Normally gets constructed internally, you don't have
  * to make your tests extend anything.
@@ -84,6 +86,7 @@ class Test
      */
     public function run(int &$passed, int &$failed, array &$messages) : void
     {
+        $didSpawn = false;
         if (!$this->test) {
             return;
         }
@@ -96,23 +99,41 @@ class Test
         $closure = $this->test->getClosure();
         $closure->bindTo($this);
         $result = $closure();
+        $running = false;
+        $tickpos = 0;
+        $tock = function () use (&$running, &$tickpos) {
+            static $states = ['|', '/', '-', '\\', '|', '/', '-', '\\'];
+            if ($running) {
+                out($states[$tickpos]);
+                $tickpos++;
+                if ($tickpos == 8) {
+                    $tickpos = 0;
+                }
+                $this->backspace(1);
+            }
+        };
         foreach ($result as $test) {
             $test = new ReflectionFunction($test);
             if ($test->hasReturnType()
                 and $returnType = $test->getReturnType()->__toString()
                 and $returnType == 'Generator'
             ) {
+                $didSpawn = true;
                 $spawn = new Test($this->level + 1, null, $this->befores, $this->afters);
                 $spawn->setTestFunction($test);
                 $spawn->run($passed, $failed, $messages);
             } else {
+                $tickpos = 0;
+                register_tick_function($tock);
                 if ($this->befores) {
                     foreach ($this->befores as $step) {
                         call_user_func($step);
                     }
                 }
-                $comment = '  '.cleanDocComment($test);
-                $this->out($comment);
+                $comment = trim(cleanDocComment($test));
+                $this->out("  | $comment");
+                $this->backspace(strlen($comment) + 2);
+                $running = true;
                 $e = null;
                 $err = null;
                 try {
@@ -170,8 +191,10 @@ class Test
                 } else {
                     $out = null;
                 }
+                $running = false;
+                unregister_tick_function($tock);
                 if (!isset($e)) {
-                    $this->isOk($comment, strlen($out) ? 'darkGreen' : 'green');
+                    $this->isOk(trim($comment), strlen($out) ? 'darkGreen' : 'green');
                 } else {
                     if (!isset($err)) {
                         $err = sprintf(
@@ -183,7 +206,7 @@ class Test
                             $this->file
                         );
                     }
-                    $this->isError($comment);
+                    $this->isError(trim($comment));
                     $this->out("  <darkRed>[!] $err\n");
                     Log::log($err);
                 }
@@ -194,7 +217,9 @@ class Test
                 }
             }
         }
-        $this->out("\n");
+        if (!$didSpawn) {
+            $this->out("\n");
+        }
     }
 
     /**
@@ -239,9 +264,8 @@ class Test
      */
     private function isOk(string $message, string $color = 'green') : void
     {
-        $length = strlen(str_repeat('  ', $this->level).$message);
-        out("\033[{$length}D\033[0m");
-        $this->out("<$color>$message\n");
+        $this->backspace(strlen(str_repeat('  ', $this->level)) + 2);
+        $this->out("  <$color>\xE2\x9C\x94 $message\n");
     }
 
     /**
@@ -252,9 +276,19 @@ class Test
      */
     private function isError(string $message) : void
     {
-        $length = strlen(str_repeat('  ', $this->level).$message);
+        $this->backspace(strlen(str_repeat('  ', $this->level)) + 2);
+        $this->out("  <red>\xE2\x9D\x8C $message\n");
+    }
+    
+    /**
+     * Go back n positions.
+     *
+     * @param int $length
+     * @return void
+     */
+    private function backspace(int $length) : void
+    {
         out("\033[{$length}D\033[0m");
-        $this->out("<red>$message\n");
     }
 
     /**

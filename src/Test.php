@@ -102,11 +102,11 @@ class Test
         $running = false;
         $tickpos = 0;
         $tock = function () use (&$running, &$tickpos) {
-            static $states = ['|', '/', '-', '\\', '|', '/', '-', '\\'];
+            static $states = ['|', '/', '-', '\\'];
             if ($running) {
                 out($states[$tickpos]);
                 $tickpos++;
-                if ($tickpos == 8) {
+                if ($tickpos == 4) {
                     $tickpos = 0;
                 }
                 $this->backspace(1);

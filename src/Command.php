@@ -20,6 +20,8 @@ use Monolyth\Cliff;
 
 class Command extends Cliff\Command
 {
+    use OutputHelper;
+
     const TOAST_VERSION = '2.0.2';
 
     /** @var bool */
@@ -60,7 +62,7 @@ class Command extends Cliff\Command
         $client = substr(md5(microtime(true)), 0, 6);
         putenv("TOAST_CLIENT=$client");
 
-        out("\n<magenta>Toast ".self::TOAST_VERSION." by Marijn Ophorst\n\n");
+        $this->out("\n<magenta>Toast ".self::TOAST_VERSION." by Marijn Ophorst\n\n");
 
         $config = 'Toast.json';
         $verbose = false;
@@ -76,12 +78,12 @@ class Command extends Cliff\Command
         try {
             $config = (object)(array)(new Kingconf\Config($config));
         } catch (Kingconf\Exception $e) {
-            out("<red>Error: <reset> Config file $config not found or invalid.\n", STDERR);
+            $this->out("<red>Error: <reset> Config file $config not found or invalid.\n", STDERR);
             die(1);
         }
         if (isset($config->bootstrap)) {
             $bootstrap = is_array($config->bootstrap) ? $config->bootstrap : [$config->bootstrap];
-            out("<gray>Bootstrapping...\n");
+            $this->out("<gray>Bootstrapping...\n");
             foreach ($bootstrap as $file) {
                 require $file;
             }
@@ -98,22 +100,22 @@ class Command extends Cliff\Command
             }
         }
 
-        out("\n");
+        $this->out("\n");
 
         if ($failed) {
             foreach (Log::get() as $msg) {
-                out("$msg\n\n");
+                $this->out("$msg\n\n");
             }
         }
         if ($passed) {
-            out(sprintf(
+            $this->out(sprintf(
                 "<green>%d test%s passed.\n",
                 $passed,
                 $passed == 1 ? '' : 's'
             ));
         }
         if ($failed) {
-            out(sprintf(
+            $this->out(sprintf(
                 "<red>%d test%s failed!\n\n",
                 $failed,
                 $failed == 1 ? '' : 's'
@@ -124,8 +126,8 @@ class Command extends Cliff\Command
             @unlink(sys_get_temp_dir().'/'.getenv("TOAST_CLIENT").'.cache');
         } catch (ErrorException $e) {
         }
-        out("\n");
-        out(sprintf(
+        $this->out("\n");
+        $this->out(sprintf(
             "\n<magenta>Took %0.2f seconds, memory usage %4.2fMb.\n\n",
             microtime(true) - $start,
             memory_get_peak_usage(true) / 1048576

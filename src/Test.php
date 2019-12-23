@@ -73,7 +73,7 @@ class Test
             $this->setTestFunction(new ReflectionFunction($fn));
             return true;
         } else {
-            $this->$this->out("<darkRed>No tests found in $file, skipping...\n");
+            $this->out("<darkRed>No tests found in $file, skipping...\n");
             return false;
         }
     }
@@ -97,7 +97,7 @@ class Test
             'thrown' => null,
             'out' => '',
         ];
-        $this->$this->out("<darkBlue>{$this->description}\n");
+        $this->out("<darkBlue>{$this->description}\n");
         $closure = $this->test->getClosure();
         $closure->bindTo($this);
         $result = $closure();
@@ -133,7 +133,7 @@ class Test
                     }
                 }
                 $comment = trim($this->cleanDocComment($test));
-                $this->$this->out("  | $comment");
+                $this->out("  | $comment");
                 $this->backspace(strlen($comment) + 2);
                 $running = true;
                 $e = null;
@@ -209,7 +209,7 @@ class Test
                         );
                     }
                     $this->isError(trim($comment));
-                    $this->$this->out("  <darkRed>[!] $err\n");
+                    $this->out("  <darkRed>[!] $err\n");
                     Log::log($err);
                 }
                 if ($this->afters) {
@@ -220,7 +220,7 @@ class Test
             }
         }
         if (!$didSpawn) {
-            $this->$this->out("\n");
+            $this->out("\n");
         }
     }
 
@@ -267,7 +267,7 @@ class Test
     private function isOk(string $message, string $color = 'green') : void
     {
         $this->backspace(strlen(str_repeat('  ', $this->level)) + 2);
-        $this->$this->out("  <$color>\xE2\x9C\x94 $message\n");
+        $this->out("  <$color>\xE2\x9C\x94 $message\n");
     }
 
     /**
@@ -279,7 +279,7 @@ class Test
     private function isError(string $message) : void
     {
         $this->backspace(strlen(str_repeat('  ', $this->level)) + 2);
-        $this->$this->out("  <red>\xE2\x9D\x8C $message\n");
+        $this->out("  <red>\xE2\x9D\x8C $message\n");
     }
     
     /**

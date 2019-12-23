@@ -48,7 +48,6 @@ class Command extends Cliff\Command
             }
             throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         });
-        require __DIR__.'/helpers.php';
 
         // Indicates we're running as Toast, hence environment should deal with tests
         // and associated fixtures instead of a "normal" database.

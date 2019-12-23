@@ -19,7 +19,9 @@ declare(ticks=1);
  */
 class Test
 {
-    use OutputHelper;
+    use OutputHelper {
+        out as unformattedOut;
+    }
 
     private $test = false;
     private $description;
@@ -106,7 +108,7 @@ class Test
         $tock = function () use (&$running, &$tickpos) {
             static $states = ['|', '/', '-', '\\'];
             if ($running) {
-                $this->out($states[$tickpos]);
+                $this->unformattedOut($states[$tickpos]);
                 $tickpos++;
                 if ($tickpos == 4) {
                     $tickpos = 0;
@@ -254,7 +256,7 @@ class Test
      */
     private function out(string $string) : void
     {
-        $this->out(str_repeat('  ', $this->level).$string);
+        $this->unformattedOut(str_repeat('  ', $this->level).$string);
     }
 
     /**
@@ -290,7 +292,7 @@ class Test
      */
     private function backspace(int $length) : void
     {
-        $this->out("\033[{$length}D\033[0m");
+        $this->unformattedOut("\033[{$length}D\033[0m");
     }
 
     /**

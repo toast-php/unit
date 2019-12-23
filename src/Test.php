@@ -19,6 +19,8 @@ declare(ticks=1);
  */
 class Test
 {
+    use OutputHelper;
+
     private $test = false;
     private $description;
     private $befores = [];
@@ -59,7 +61,7 @@ class Test
             return;
         }
         $this->test = $function;
-        $description = cleanDocComment($this->test);
+        $description = $this->cleanDocComment($this->test);
         $description = preg_replace("@\s{1,}@m", ' ', $description);
         $this->description = $description;
     }
@@ -71,7 +73,7 @@ class Test
             $this->setTestFunction(new ReflectionFunction($fn));
             return true;
         } else {
-            $this->out("<darkRed>No tests found in $file, skipping...\n");
+            $this->$this->out("<darkRed>No tests found in $file, skipping...\n");
             return false;
         }
     }
@@ -95,7 +97,7 @@ class Test
             'thrown' => null,
             'out' => '',
         ];
-        $this->out("<darkBlue>{$this->description}\n");
+        $this->$this->out("<darkBlue>{$this->description}\n");
         $closure = $this->test->getClosure();
         $closure->bindTo($this);
         $result = $closure();
@@ -104,7 +106,7 @@ class Test
         $tock = function () use (&$running, &$tickpos) {
             static $states = ['|', '/', '-', '\\'];
             if ($running) {
-                out($states[$tickpos]);
+                $this->out($states[$tickpos]);
                 $tickpos++;
                 if ($tickpos == 4) {
                     $tickpos = 0;
@@ -130,8 +132,8 @@ class Test
                         call_user_func($step);
                     }
                 }
-                $comment = trim(cleanDocComment($test));
-                $this->out("  | $comment");
+                $comment = trim($this->cleanDocComment($test));
+                $this->$this->out("  | $comment");
                 $this->backspace(strlen($comment) + 2);
                 $running = true;
                 $e = null;
@@ -187,7 +189,7 @@ class Test
                     }
                 }
                 if (!OUTPUT) {
-                    $out = cleanOutput(ob_get_clean());
+                    $out = $this->cleanOutput(ob_get_clean());
                 } else {
                     $out = null;
                 }
@@ -207,7 +209,7 @@ class Test
                         );
                     }
                     $this->isError(trim($comment));
-                    $this->out("  <darkRed>[!] $err\n");
+                    $this->$this->out("  <darkRed>[!] $err\n");
                     Log::log($err);
                 }
                 if ($this->afters) {
@@ -218,7 +220,7 @@ class Test
             }
         }
         if (!$didSpawn) {
-            $this->out("\n");
+            $this->$this->out("\n");
         }
     }
 
@@ -250,9 +252,9 @@ class Test
      * @param string $string
      * @return void
      */
-    private function out(string $string) : void
+    private function $this->out(string $string) : void
     {
-        out(str_repeat('  ', $this->level).$string);
+        $this->out(str_repeat('  ', $this->level).$string);
     }
 
     /**
@@ -265,7 +267,7 @@ class Test
     private function isOk(string $message, string $color = 'green') : void
     {
         $this->backspace(strlen(str_repeat('  ', $this->level)) + 2);
-        $this->out("  <$color>\xE2\x9C\x94 $message\n");
+        $this->$this->out("  <$color>\xE2\x9C\x94 $message\n");
     }
 
     /**
@@ -277,7 +279,7 @@ class Test
     private function isError(string $message) : void
     {
         $this->backspace(strlen(str_repeat('  ', $this->level)) + 2);
-        $this->out("  <red>\xE2\x9D\x8C $message\n");
+        $this->$this->out("  <red>\xE2\x9D\x8C $message\n");
     }
     
     /**
@@ -288,7 +290,7 @@ class Test
      */
     private function backspace(int $length) : void
     {
-        out("\033[{$length}D\033[0m");
+        $this->out("\033[{$length}D\033[0m");
     }
 
     /**

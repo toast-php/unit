@@ -252,7 +252,7 @@ class Test
      * @param string $string
      * @return void
      */
-    private function $this->out(string $string) : void
+    private function out(string $string) : void
     {
         $this->out(str_repeat('  ', $this->level).$string);
     }

@@ -119,7 +119,7 @@ class Test
         foreach ($result as $test) {
             $test = new ReflectionFunction($test);
             if ($test->hasReturnType()
-                and $returnType = $test->getReturnType()->__toString()
+                and $returnType = ((float)phpversion() >= 7.4 ? $test->getReturnType()->getName() : $test->getReturnType()->__toString())
                 and $returnType == 'Generator'
             ) {
                 $didSpawn = true;

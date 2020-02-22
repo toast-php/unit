@@ -144,7 +144,6 @@ class Test
             ) {
                 $didSpawn = true;
                 $this->spawn = new Test($this->level + 1, null, $this->befores, $this->afters);
-                printf("spawning with %d befores\n", count($this->befores));
                 $this->spawn->setTestFunction($test);
                 $this->spawn->run($passed, $failed, $messages);
             } else {

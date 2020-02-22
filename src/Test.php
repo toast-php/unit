@@ -23,15 +23,35 @@ class Test
         out as unformattedOut;
     }
 
-    private $test = false;
-    private $description;
-    private $befores = [];
-    private $afters = [];
-    private $level;
-    private $filter;
-    private $file;
+    /** @var string[] */
     public $matchesFilter = [];
+
+    /** @var string[] */
     public $subMatchesFilter = [];
+
+    /** @var bool */
+    private $test = false;
+
+    /** @var string */
+    private $description;
+
+    /** @var callable[] */
+    private $befores = [];
+
+    /** @var callable[] */
+    private $afters = [];
+
+    /** @var int */
+    private $level;
+
+    /** @var string|null */
+    private $filter;
+
+    /** @var string */
+    private $file;
+
+    /** @var Toast\Unit\Test|null */
+    private $spawn;
 
     /**
      * Constructor
@@ -41,7 +61,7 @@ class Test
      * @param array $befores Inherited beforeEach statements. Optional.
      * @param array $afters Inherited afterEach statements. Optional.
      */
-    public function __construct(int $level = 0, string $filter = null, array &$befores = [], array &$afters = [])
+    public function __construct(int $level = 0, string $filter = null, array $befores = [], array $afters = [])
     {
         $this->level = $level;
         $this->filter = $filter;
@@ -123,13 +143,15 @@ class Test
                 and $returnType == 'Generator'
             ) {
                 $didSpawn = true;
-                $spawn = new Test($this->level + 1, null, $this->befores, $this->afters);
-                $spawn->setTestFunction($test);
-                $spawn->run($passed, $failed, $messages);
+                $this->spawn = new Test($this->level + 1, null, $this->befores, $this->afters);
+                printf("spawning with %d befores\n", count($this->befores));
+                $this->spawn->setTestFunction($test);
+                $this->spawn->run($passed, $failed, $messages);
             } else {
                 $tickpos = 0;
                 register_tick_function($tock);
                 if ($this->befores) {
+                    echo "calling befores ".count($this->befores)."\n";
                     foreach ($this->befores as $step) {
                         call_user_func($step);
                     }
@@ -144,7 +166,9 @@ class Test
                     if (!OUTPUT) {
                         ob_start();
                     }
-                    $test->invoke($this);
+                    $closure = $test->getClosure();
+                    $closure->bindTo($this);
+                    $closure();
                     $passed++;
                 } catch (AssertionError $e) {
                     $err = sprintf(
@@ -235,6 +259,9 @@ class Test
     public function beforeEach(callable $fn) : void
     {
         $this->befores[] = $fn;
+        if (isset($this->spawn)) {
+            $this->spawn->beforeEach($fn);
+        }
     }
 
     /**
@@ -246,6 +273,9 @@ class Test
     public function afterEach(callable $fn)
     {
         $this->afters[] = $fn;
+        if (isset($this->spawn)) {
+            $this->spawn->beforeEach($fn);
+        }
     }
 
     /**

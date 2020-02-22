@@ -150,7 +150,6 @@ class Test
                 $tickpos = 0;
                 register_tick_function($tock);
                 if ($this->befores) {
-                    echo "calling befores ".count($this->befores)."\n";
                     foreach ($this->befores as $step) {
                         call_user_func($step);
                     }

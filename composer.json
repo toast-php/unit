@@ -13,7 +13,7 @@
         "php": ">=7.4",
         "monomelodies/kingconf": "^1.1.0",
         "simoneast/simple-ansi-colors": "^1.0",
-        "monolyth/cliff": "^0.6.0"
+        "monolyth/cliff": "^0.7.0"
     },
     "bin": [
         "bin/toast"

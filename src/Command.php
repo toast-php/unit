@@ -42,7 +42,7 @@ class Command extends Cliff\Command
         }
 
         error_reporting(E_ALL);
-        set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) {
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
             if ($errno == E_USER_DEPRECATED) {
                 return;
             }

@@ -154,7 +154,7 @@ class Test
                         call_user_func($step);
                     }
                 }
-                $comment = trim($this->cleanDocComment($test));
+                $comment = trim($this->cleanDocComment($test)) ?? '';
                 $this->out("  | $comment");
                 $this->backspace(strlen($comment) + 2);
                 $running = true;

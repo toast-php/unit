@@ -154,7 +154,7 @@ class Test
                         call_user_func($step);
                     }
                 }
-                $comment = trim($this->cleanDocComment($test)) ?? '';
+                $comment = trim($this->cleanDocComment($test ?? ''));
                 $this->out("  | $comment");
                 $this->backspace(strlen($comment) + 2);
                 $running = true;
@@ -220,7 +220,7 @@ class Test
                 $running = false;
                 unregister_tick_function($tock);
                 if (!isset($e)) {
-                    $this->isOk(trim($comment), strlen($out) ? 'darkGreen' : 'green');
+                    $this->isOk(trim($comment ?? ''), strlen($out ?? '') ? 'darkGreen' : 'green');
                 } else {
                     if (!isset($err)) {
                         $err = sprintf(

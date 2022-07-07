@@ -24,14 +24,11 @@ class Command extends Cliff\Command
 
     const TOAST_VERSION = '2.1.7';
 
-    /** @var bool */
-    public $output = false;
+    public bool $output = false;
 
-    /** @var bool */
-    public $verbose = false;
+    public bool $verbose = false;
 
-    /** @var string */
-    public $filter;
+    public string $filter;
 
     public function __invoke() : void
     {

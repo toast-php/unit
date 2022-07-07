@@ -24,34 +24,34 @@ class Test
     }
 
     /** @var string[] */
-    public $matchesFilter = [];
+    public array $matchesFilter = [];
 
     /** @var string[] */
-    public $subMatchesFilter = [];
+    public array $subMatchesFilter = [];
 
     /** @var bool */
-    private $test = false;
+    private bool $test = false;
 
     /** @var string */
-    private $description;
+    private string $description;
 
     /** @var callable[] */
-    private $befores = [];
+    private array $befores = [];
 
     /** @var callable[] */
-    private $afters = [];
+    private array $afters = [];
 
     /** @var int */
-    private $level;
+    private int $level;
 
     /** @var string|null */
-    private $filter;
+    private ?string $filter;
 
     /** @var string */
-    private $file;
+    private string $file;
 
     /** @var Toast\Unit\Test|null */
-    private $spawn;
+    private ?Test $spawn;
 
     /**
      * Constructor

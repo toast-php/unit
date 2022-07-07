@@ -29,10 +29,8 @@ class Test
     /** @var string[] */
     public array $subMatchesFilter = [];
 
-    /** @var bool */
-    private bool $test = false;
+    private ?ReflectionFunction $test = null;
 
-    /** @var string */
     private string $description;
 
     /** @var callable[] */
@@ -41,16 +39,12 @@ class Test
     /** @var callable[] */
     private array $afters = [];
 
-    /** @var int */
     private int $level;
 
-    /** @var string|null */
     private ?string $filter;
 
-    /** @var string */
     private string $file;
 
-    /** @var Toast\Unit\Test|null */
     private ?Test $spawn;
 
     /**

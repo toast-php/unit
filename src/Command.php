@@ -22,7 +22,7 @@ class Command extends Cliff\Command
 {
     use OutputHelper;
 
-    const TOAST_VERSION = '2.1.7';
+    const TOAST_VERSION = '2.2.1';
 
     public bool $output = false;
 
